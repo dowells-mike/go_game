@@ -11,7 +11,18 @@ class PlayerNameDialog(QDialog):
         super().__init__(parent)
 
         self.setWindowTitle("Enter Player Names")
-        self.setGeometry(300, 300, 300, 150)
+
+        # Set the size of the dialog
+        self.resize(300, 200)  # Adjust the size as needed
+
+        # If parent (main window) is provided, position the dialog at the center
+        if parent:
+            qr = self.frameGeometry()
+            cp = parent.frameGeometry().center()
+            qr.moveCenter(cp)
+            self.move(qr.topLeft())
+        else:
+            self.setGeometry(300, 300, 400, 200)
 
         layout = QVBoxLayout(self)
 
