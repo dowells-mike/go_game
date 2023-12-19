@@ -59,15 +59,28 @@ class GoGameHomePage(QMainWindow):
         start_game_button.setFixedSize(200, 60)
         layout.addWidget(start_game_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
+    # def start_new_game(self):
+    #     dialog = PlayerNameDialog(self)
+    #     if dialog.exec() == QDialog.DialogCode.Accepted:
+    #         player1_name, player2_name = dialog.get_player_names()
+
+    #         # Open a new window for the game with player names
+    #         game_window = GoBoard()
+    #         game_window.show()
+    #         self.close()
     def start_new_game(self):
         dialog = PlayerNameDialog(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
+<<<<<<< HEAD:homepage.py
             #player1_name, player2_name = dialog.get_player_names()
+=======
+            player1_name, player2_name = dialog.get_player_names()
+        # Open a new window for the game with player names
+        game_window = GoBoard(player1_name, player2_name)
+        game_window.show()
+        self.close()
+>>>>>>> 9e250eb940dded8e68f757bc2a856fe39f160820:go.py
 
-            # Open a new window for the game with player names
-            game_window = GoBoard()
-            game_window.show()
-            self.close()
 
     def about(self):
         about_text = (
