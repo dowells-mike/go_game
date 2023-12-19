@@ -333,3 +333,4 @@ class Board(QFrame):
             self.whoIsTheWinner()
             return True
         return False
+''
