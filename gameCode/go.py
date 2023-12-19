@@ -87,15 +87,14 @@ class Go(QMainWindow):
         resetMenu = mainMenu.addAction(resetAction)
 
         # help menu
-        helpMenu = mainMenu.addMenu("Help")
         helpAction = QAction("Help", self)
         helpAction.setShortcut("Ctrl+H")  # set shortcut
-        helpMenu.addAction(helpAction)
+        helpMenu = mainMenu.addAction(helpAction)
         helpAction.triggered.connect(self.help)
 
         showWidgetAction = QAction("Show Widget", self)
         showWidgetAction.setShortcut("Ctrl+W")
-        helpMenu.addAction(showWidgetAction)
+        showwidgetMenu= mainMenu.addAction(showWidgetAction)
         showWidgetAction.triggered.connect(self.showScorerBoard)
 
         # About Menu
