@@ -3,7 +3,7 @@ from balls import Balls
 
 
 class GameLogic:
-    turn = Piece.White
+    turn = Piece.Black
     xPosition = 0
     yPosition = 0
     boardArray = 0
@@ -113,15 +113,15 @@ class GameLogic:
 
     def capturePiece(self, xpos, ypos):
         # captures a piece at the given position
-        if self.boardArray[ypos][xpos].Piece == 1:  # if the piece is white
+        if self.boardArray[ypos][xpos].Piece == 1:  # if the piece is black
             self.captiveIsBlack = self.captiveIsBlack + 1
             self.boardArray[ypos][xpos] = Balls(Piece.NoPiece, xpos, ypos)
-            return "White piece Captured at x: " + str(xpos) + ", y: " + str(ypos)
+            return "Black piece Captured at x: " + str(xpos) + ", y: " + str(ypos)
 
         else:  # if the piece is black
             self.captiveIsWhite = self.captiveIsWhite + 1
             self.boardArray[ypos][xpos] = Balls(Piece.NoPiece, xpos, ypos)
-            return "Black piece Captured at x: " + str(xpos) + ", y: " + str(ypos)
+            return "White piece Captured at x: " + str(xpos) + ", y: " + str(ypos)
 
     def isBadMove(self):
         oppositeplayer = 0
@@ -190,7 +190,7 @@ class GameLogic:
         self.territoriesIsBlack = counterOne
 
     def returnTheScores(self, Piece):
-        if Piece == 2:
+        if Piece == 1:
             return self.territoriesIsBlack + self.captiveIsBlack
         else:
             return self.territoriesIsWhite + self.captiveIsWhite

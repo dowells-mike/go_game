@@ -7,6 +7,7 @@ from PyQt6.QtGui import QPainter, QBrush, QColor
 from piece import Piece
 from balls import Balls
 from game_logic import GameLogic
+from PyQt6.QtCore import QCoreApplication
 
 
 class Board(QFrame):
@@ -62,15 +63,23 @@ class Board(QFrame):
         if event.timerId() == self.timer.timerId():  # if the timer that has 'ticked' is the one in this class
             if self.counter == 0:
                 self.notifyUser("Timer Ran out : Game over")  # notifiers user when counter get to zero
-                if self.gamelogic.turn == Piece.Black:
-                    self.notifyUser("White Player Wins")  # white wins if they capture more territories
+                winner = "White Player Wins" if self.gamelogic.turn == Piece.Black else "Black Player Wins"
+                self.notifyUser(winner)
+
+                reply = QMessageBox.question(self, 'Game Over',
+                                     winner + "\nDo you want to play a new game?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+
+
+                if reply == QMessageBox.StandardButton.Yes:
+                    self.resetGame()
                 else:
-                    self.notifyUser("Black Player Wins")  # else black wins
-                self.close()
-            self.counter -= 1
-            self.listenToTime.emit(self.counter)
+                    QCoreApplication.instance().quit()
+            else:
+                self.counter -= 1
+                self.listenToTime.emit(self.counter)
         else:
             super(Board, self).timerEvent(event)
+
 
     def paintEvent(self, event):
         '''paints the board and the pieces of the game'''
@@ -305,14 +314,17 @@ class Board(QFrame):
         '''clears pieces from the board'''
         print("Game Reseted")
         self.boardArray = [[Balls(Piece.NoPiece, i, j) for i in range(self.boardWidth)] for j in
-                           range(self.boardHeight)]
+                        range(self.boardHeight)]
         self.gamelogic.blackprisoners = 0
         self.gamelogic.whiteprisoners = 0
+        self.gamelogic.blackterritories = 0
+        self.gamelogic.whiteterritories = 0
         self.gamelogic.turn = Piece.White
 
-
-
-
+        # Reset the timer
+        self.timer.stop()
+        self.counter = 120 # Reset the counter
+        self.timer.start(self.timerSpeed, self)
 
     def skipTurn(self):
         self.notifyUser("Move Passed")
@@ -323,3 +335,4 @@ class Board(QFrame):
             self.whoIsTheWinner()
             return True
         return False
+''

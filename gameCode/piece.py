@@ -1,4 +1,4 @@
 class Piece(object):
     NoPiece = 0
-    White = 1
-    Black = 2
+    Black=1
+    White=2
