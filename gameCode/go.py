@@ -1,7 +1,7 @@
 from PyQt6 import QtCore
-from PyQt6.QtGui import QAction, QIcon
-from PyQt6.QtWidgets import QMainWindow, QStatusBar, QMessageBox
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 from board import Board
 from score_board import ScoreBoard
 
