@@ -66,7 +66,7 @@ class ScoreBoard(QDockWidget):
         self.label_PrisonersWhite = QLabel("Prisoners Taken by White: ")
         self.label_TerritoriesBlack = QLabel("Territories Taken by Black: ")
         self.label_TerritoriesWhite = QLabel("Territories Taken by White: ")
-        col = QColor(Qt.GlobalColor.white)
+        col = QColor(Qt.GlobalColor.black)
         self.frm = QFrame(self)
         self.frm.setStyleSheet("QWidget { "
                                "background-color: %s }"
@@ -124,13 +124,13 @@ class ScoreBoard(QDockWidget):
 
     def updateturn(self, Piece):
         if Piece == 1:
-            self.player_turn.setText("Current Turn: White")
-            self.frm.setStyleSheet("QWidget { background-color: %s }"
-                                   % QColor(Qt.GlobalColor.white).name())
-        elif Piece == 2:
             self.player_turn.setText("Current Turn: Black")
             self.frm.setStyleSheet("QWidget { background-color: %s }"
                                    % QColor(Qt.GlobalColor.black).name())
+        elif Piece == 2:
+            self.player_turn.setText("Current Turn: White")
+            self.frm.setStyleSheet("QWidget { background-color: %s }"
+                                   % QColor(Qt.GlobalColor.white).name())
 
     def updatePrisoners(self, n, Player):
         if Player == Piece.Black:
