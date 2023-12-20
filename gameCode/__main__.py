@@ -34,9 +34,10 @@ class GoGameHomePage(QMainWindow):
         layout.addWidget(start_game_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def start_new_game(self):
-        game_window = Go()
-        game_window.show()
+        self.game_window = Go()
+        self.game_window.show()
         self.close()
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

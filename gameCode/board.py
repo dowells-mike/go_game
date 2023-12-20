@@ -319,7 +319,7 @@ class Board(QFrame):
         self.gamelogic.whiteprisoners = 0
         self.gamelogic.blackterritories = 0
         self.gamelogic.whiteterritories = 0
-        self.gamelogic.turn = Piece.White
+        self.gamelogic.turn = Piece.Black
 
         # Reset the timer
         self.timer.stop()
