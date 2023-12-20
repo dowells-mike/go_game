@@ -92,6 +92,11 @@ class Go(QMainWindow):
         helpMenu = mainMenu.addAction(helpAction)
         helpAction.triggered.connect(self.help)
 
+        showWidgetAction = QAction("Show Widget", self)
+        showWidgetAction.setShortcut("Ctrl+W")
+        showwidgetMenu= mainMenu.addAction(showWidgetAction)
+        showWidgetAction.triggered.connect(self.showScorerBoard)
+
         # About Menu
         aboutAction = QAction(QIcon("./icons/about.png"), "About", self)
         aboutAction.setShortcut("Ctrl+A")
@@ -156,3 +161,6 @@ class Go(QMainWindow):
             if self.getBoard().skipTurn():
                 self.close()
             self.update()
+    def showScorerBoard(self):
+        if not self.scoreBoard.isVisible():
+            self.scoreBoard.show()
