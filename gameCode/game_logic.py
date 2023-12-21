@@ -194,3 +194,4 @@ class GameLogic:
             return self.territoriesIsBlack + self.captiveIsBlack
         else:
             return self.territoriesIsWhite + self.captiveIsWhite
+    

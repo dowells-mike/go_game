@@ -5,7 +5,7 @@ from PyQt6 import QtGui
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
-from board import GoBoard
+from board2 import GoBoard
 from players import PlayerNameDialog
 
 class GoGameHomePage(QMainWindow):
