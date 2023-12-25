@@ -10,6 +10,8 @@ def passevent():
 
 
 class ScoreBoard(QDockWidget):
+    BLACK_COLOR = QColor(Qt.GlobalColor.black).name()
+    WHITE_COLOR = QColor(Qt.GlobalColor.white).name()
 
     def __init__(self):
         super().__init__()
@@ -45,10 +47,10 @@ class ScoreBoard(QDockWidget):
                  text-align: center; 
                  font-size: 12px;
                  font-family:Lucida Sans;
-                 
-                 
-                
-                
+
+
+
+
                } 
                helpMenu
             """
@@ -122,15 +124,13 @@ class ScoreBoard(QDockWidget):
     # print('slot '+update)
     # self.redraw()
 
-    def updateturn(self, Piece):
-        if Piece == 1:
+    def updateturn(self, player):
+        if player == 1:
             self.player_turn.setText("Current Turn: Black")
-            self.frm.setStyleSheet("QWidget { background-color: %s }"
-                                   % QColor(Qt.GlobalColor.black).name())
-        elif Piece == 2:
+            self.frm.setStyleSheet("QWidget { background-color: %s }" % self.BLACK_COLOR)
+        elif player == 2:
             self.player_turn.setText("Current Turn: White")
-            self.frm.setStyleSheet("QWidget { background-color: %s }"
-                                   % QColor(Qt.GlobalColor.white).name())
+            self.frm.setStyleSheet("QWidget { background-color: %s }" % self.WHITE_COLOR)
 
     def updatePrisoners(self, n, Player):
         if Player == Piece.Black:
@@ -153,9 +153,8 @@ class ScoreBoard(QDockWidget):
     def displaynotification(self, message):
         dialog = QDialog(self)
         dialog.setFixedWidth(300)
-
         dialog.setWindowTitle("Notification")
-        self.model = QVBoxLayout()
-        self.model.addWidget(QLabel(message))
-        dialog.setLayout(self.model)
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel(message))
+        dialog.setLayout(layout)
         dialog.exec()

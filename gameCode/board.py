@@ -1,6 +1,5 @@
 from collections import namedtuple
 from copy import copy
-
 from PyQt6.QtWidgets import QFrame, QStatusBar, QMessageBox
 from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPoint
 from PyQt6.QtGui import QPainter, QBrush, QColor
@@ -9,12 +8,11 @@ from balls import Balls
 from game_logic import GameLogic
 from PyQt6.QtCore import QCoreApplication
 
-
 class Board(QFrame):
     boardWidth = 7  # board width
     boardHeight = 7  # board height
     timerSpeed = 1000  # timer set to 1 sec
-    counter = 120  # countdown
+    counter = 60  # countdown
     gamelogic = GameLogic()  # getting game logic class
     passcount = 0
     listenToTime = pyqtSignal(int)
@@ -30,19 +28,19 @@ class Board(QFrame):
         self.isStarted = None
         self.timer = None
         self.initBoard()
-        self.__gameState__ = []  # array to store state of the game
+        self.__gameState__ = []  # List to store the state of the game
 
     def initBoard(self):
+        # Initialize the game board
         self.timer = QBasicTimer()
         self.isStarted = False
         self.start()
-        self.boardArray = [[Balls(Piece.NoPiece, i, j) for i in range(self.boardWidth)] for j in
-                           range(self.boardHeight)]
+        self.boardArray = [[Balls(Piece.NoPiece, i, j) for i in range(self.boardWidth)] for j in range(self.boardHeight)]
         self.gamelogic = GameLogic()
         self.printBoardArray()
 
     def printBoardArray(self):
-        '''prints the boardArray in an attractive way'''
+        # Print the boardArray for debugging
         print("boardArray:")
         print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in self.boardArray]))
 
@@ -60,200 +58,139 @@ class Board(QFrame):
         print("start () - timer is started")
 
     def timerEvent(self, event):
-        if event.timerId() == self.timer.timerId():  # if the timer that has 'ticked' is the one in this class
+        # Handle timer events
+        if event.timerId() == self.timer.timerId():
             if self.counter == 0:
-                self.notifyUser("Timer Ran out : Game over")  # notifiers user when counter get to zero
-                winner = "White Player Wins" if self.gamelogic.turn == Piece.Black else "Black Player Wins"
-                self.notifyUser(winner)
-
-                reply = QMessageBox.question(self, 'Game Over',
-                                     winner + "\nDo you want to play a new game?", QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
-
-
-                if reply == QMessageBox.StandardButton.Yes:
-                    self.resetGame()
-                else:
-                    QCoreApplication.instance().quit()
+                self.gameOver()
             else:
                 self.counter -= 1
                 self.listenToTime.emit(self.counter)
         else:
             super(Board, self).timerEvent(event)
 
-
     def paintEvent(self, event):
-        '''paints the board and the pieces of the game'''
+        # Paint the board and pieces
         painter = QPainter(self)
         self.drawBoardSquares(painter)
         self.drawPieces(painter)
 
     def mousePressEvent(self, event):
-        '''this event is automatically called when the mouse is pressed'''
-        clickLoc = "click location [" + str(event.position().x()) + "," + str(
-            event.position().y()) + "]"  # the location where a mouse click was registered
-        print("mousePressEvent() - " + clickLoc)
-        # TODO you could call some game logic here
-        self.mousePosToColRow(event)  # calls mousePosToColRow
+        # Handle mouse click events
+        clickLoc = f"click location [{event.position().x()},{event.position().y()}]"
+        print(f"mousePressEvent() - {clickLoc}")
+        self.mousePosToColRow(event)
         self.listenToClick.emit(clickLoc)
 
     def mousePosToColRow(self, event):
-        '''convert the mouse click event to a row and column'''
-        xPosition = event.position().x()  # assigning mouse click x & y event to variables
-        yPosition = event.position().y()
-        xCoordinate = xPosition / self.squareWidth()  # setting up x & y coordinates
-        yCoordinate = yPosition / self.squareHeight()
-
-        x = round(xCoordinate) - 1
-        y = round(yCoordinate) - 1
-
-        self.gamelogic.updateparams(self.boardArray, x, y)  # passing parameters to update current variables.
-        if self.canWePlaceBallAtChosenPosition():  # checks to see if move is not illegal
-            self.placeBall()  # place the pieces on the board
-            self.updateTerritoriesAndCaptives()  # update prisoner & territory if any
+        # Convert mouse click event to row and column
+        xPosition, yPosition = event.position().x(), event.position().y()
+        xCoordinate, yCoordinate = xPosition / self.squareWidth(), yPosition / self.squareHeight()
+        x, y = round(xCoordinate) - 1, round(yCoordinate) - 1
+        self.gamelogic.updateparams(self.boardArray, x, y)
+        if self.canWePlaceBallAtChosenPosition():
+            self.placeBall()
+            self.updateTerritoriesAndCaptives()
         self.update()
 
     def drawBoardSquares(self, painter):
-        """draw all the square on the board"""
-        # setting the default colour of the brush
-        color = QColor(209, 179, 141)
-        color2 = QColor(196, 164, 132)
-        brush = QBrush(Qt.BrushStyle.SolidPattern)  # calling SolidPattern to a variable
-        brush.setColor(color)  # setting color to wood type of color
-        painter.setBrush(brush)
-        for row in range(0, Board.boardHeight):
-            for col in range(0, Board.boardWidth):
+        # Draw the board squares
+        color = QColor(169, 169, 169)
+        color2 = QColor(211, 211, 211)
+        brush = QBrush(Qt.BrushStyle.SolidPattern)
+        brush.setColor(color)
+        for row in range(0, self.boardHeight):
+            for col in range(0, self.boardWidth):
                 painter.save()
-                colTransformation = self.squareWidth() * col  # setting this value equal the transformation in the
-                # column direction
-                rowTransformation = self.squareHeight() * row  # setting this value equal the transformation in the
-                # row direction
+                colTransformation, rowTransformation = self.squareWidth() * col, self.squareHeight() * row
                 painter.translate(colTransformation, rowTransformation)
-                painter.fillRect(col, row, round(self.squareWidth()), round(self.squareHeight()), brush)  # passing
-                # the above variables and methods as a parameter
+                painter.fillRect(col, row, round(self.squareWidth()), round(self.squareHeight()), brush)
                 painter.restore()
-
-                # changing the colour of the brush so that a checkered board is drawn
-                if brush.color() == color:  # if the brush color of square is color
-                    brush.setColor(color2)  # set the next color of the square to color2
-                else:  # if the brush color of square is color2
-                    brush.setColor(color)  # set the next color of the square to color
+                brush.setColor(color2 if brush.color() == color else color)
 
     def drawPieces(self, painter):
-        # Draw the pieces
-        for row in range(0, len(self.boardArray)):
-            for col in range(0, len(self.boardArray[0])):
+        # Draw the game pieces
+        for row in range(len(self.boardArray)):
+            for col in range(len(self.boardArray[0])):
                 painter.save()
-                painter.translate(((self.squareWidth()) * row) + self.squareWidth() * 0.70,  # get width location
-                                  (self.squareHeight()) * col + self.squareHeight() * 0.70)  # get height location
-                color = QColor(0, 0, 0)  # set the color is unspecified
-                if self.boardArray[col][row].Piece == Piece.NoPiece:  # if no piece change unspecified color is
-                    # transparent
-                    color = QColor(Qt.GlobalColor.transparent)
-                elif self.boardArray[col][row].Piece == Piece.White:  # if white change unspecified colour to white
-                    color = QColor(Qt.GlobalColor.white)
-                elif self.boardArray[col][row].Piece == Piece.Black:  # if black, change unspecified colour to black
-                    color = QColor(Qt.GlobalColor.black)
+                painter.translate((self.squareWidth() * row) + self.squareWidth() * 0.70,
+                                  (self.squareHeight() * col) + self.squareHeight() * 0.70)
+                color = self.getPieceColor(row, col)
                 painter.setPen(color)
                 painter.setBrush(color)
-                radius = self.squareWidth() / 3 # size of the piece
+                radius = self.squareWidth() / 3
                 center = QPoint(round(radius), round(radius))
                 painter.drawEllipse(center, round(radius), round(radius))
                 painter.restore()
 
+    def getPieceColor(self, row, col):
+        # Get the color of the piece at the specified row and column
+        piece = self.boardArray[col][row].Piece
+        if piece == Piece.NoPiece:
+            return QColor(Qt.GlobalColor.transparent)
+        elif piece == Piece.White:
+            return QColor(Qt.GlobalColor.white)
+        elif piece == Piece.Black:
+            return QColor(Qt.GlobalColor.black)
+
     def canWePlaceBallAtChosenPosition(self):
-        # check if it's safe to place a ball at the chosen position
+        # Check if it's safe to place a ball at the chosen position
         if self.gamelogic.postionNotOccupied():
             if self.gamelogic.isBadMove():
                 self.notifyUser("Move not Allowed")
                 return False
-            else:
-                return True
+            return True
         else:
             self.notifyUser("Spot Occupied")
             return False
 
     def placeBall(self):
-        self.gamelogic.plotTheBalls()  # place the piece on the board
-        self.gamelogic.updateLiberty()  # update the liberties
+        # Place the ball on the board
+        self.gamelogic.plotTheBalls()
+        self.gamelogic.updateLiberty()
         message = self.gamelogic.updateCaptivesTheSecond()
         if message is not None:
-            self.notifyUser(message)  # notify piece was captured
+            self.notifyUser(message)
             print("Stone captured")
-            self.gamelogic.updateLiberty()  # update the liberties again in case of capture
-
-        self.gamelogic.updateTeritories()  # update territories
-        self.__addCurrentStateToGlobalState__()  # push it to the global state
+            self.gamelogic.updateLiberty()
+        self.gamelogic.updateTeritories()
+        self.__addCurrentStateToGlobalState__()
         if not self._check_for_ko():
             self.passcount = 0
             self.changeturn()
         else:
-
-            if self.gamelogic.turn == Piece.White:  # change to White prisoner count
-                self.gamelogic.captiveIsWhite = self.gamelogic.captiveIsWhite - 1
-            else:  # change to black prisoner count
-                self.gamelogic.captiveIsBlack = self.gamelogic.captiveIsBlack - 1
-
-            self.__removeFromGlobalState__(self.__gameState__[-2])
-            # update the liberties and territories
-            self.gamelogic.updateLiberty()
-            self.gamelogic.updateTeritories()
-            # push this state to history
-            self.__addCurrentStateToGlobalState__()
+            self.handleKo()
 
     def __addCurrentStateToGlobalState__(self):
         # Add the current board state to the state array
-        self.__gameState__.append(self.copyThisBoard())  # adds it to the end of the list
+        self.__gameState__.append(self.copyThisBoard())
+        self.printRecentStates()
+
+    def printRecentStates(self):
+        # Print recent states for debugging
         try:
-            print("Last move")  # prints the last element of the list
+            print("Last move")
             print('\n'.join(['\t'.join([str(cell.Piece) for cell in row]) for row in self.__gameState__[-1]]))
-            print("Second Last")  # prints the second last element of the list
+            print("Second Last")
             print('\n'.join(['\t'.join([str(cell.Piece) for cell in row]) for row in self.__gameState__[-2]]))
-            print("3rd Last")  # prints the third last element of the list
+            print("3rd Last")
             print('\n'.join(['\t'.join([str(cell.Piece) for cell in row]) for row in self.__gameState__[-3]]))
         except IndexError:
             return None
 
     def __removeFromGlobalState__(self, previousstate):
-        """
-        Pops and loads game state from history.
-        """
+        # Remove and load game state from history
         print("Removed from global state stack")
-        rowIndex = 0
-        for row in previousstate:
-            colIndex = 0
-            for cell in row:
-                if cell.Piece == 1:  # if piece is 1, assign white stone to the row and col index of boardArray
-                    self.boardArray[rowIndex][colIndex] = Balls(Piece.White, colIndex, rowIndex)
-                elif cell.Piece == 2:  # if piece is 2, assign black stone to the row and col index of boardArray
-                    self.boardArray[rowIndex][colIndex] = Balls(Piece.Black, colIndex, rowIndex)
-                elif cell.Piece == 0:  # if piece is 0, assign null to the row and col index of boardArray
-                    self.boardArray[rowIndex][colIndex] = Balls(Piece.NoPiece, colIndex, rowIndex)
-                colIndex = colIndex + 1  # move to the next col index position
-            rowIndex = rowIndex + 1  # move to the next row index position
-        print('\n'.join(['\t'.join([str(cell.Piece) for cell in row]) for row in self.boardArray]))
+        for rowIndex, row in enumerate(previousstate):
+            for colIndex, cell in enumerate(row):
+                self.boardArray[rowIndex][colIndex] = Balls(cell.Piece, colIndex, rowIndex)
+        self.printBoardArray()
 
     def copyThisBoard(self):
-
-        # store and return the current state of the board
-        copyofboard = [[Balls(Piece.NoPiece, i, j) for i in range(7)] for j in
-                       range(7)]
-        rowIndex = 0
-        for row in self.boardArray:
-            colIndex = 0
-            for cell in row:
-                if cell.Piece == Piece.White:
-                    copyofboard[rowIndex][colIndex] = Balls(Piece.White, colIndex, rowIndex)
-                elif cell.Piece == Piece.Black:
-                    copyofboard[rowIndex][colIndex] = Balls(Piece.Black, colIndex, rowIndex)
-                elif cell.Piece == Piece.NoPiece:
-                    copyofboard[rowIndex][colIndex] = Balls(Piece.NoPiece, colIndex, rowIndex)
-                colIndex = colIndex + 1
-            rowIndex = rowIndex + 1
-
-        return copyofboard
+        # Copy the current state of the board
+        return [[Balls(cell.Piece, i, j) for i, cell in enumerate(row)] for j, row in enumerate(self.boardArray)]
 
     def _check_for_ko(self):
-        # Checks for KO.
+        # Check for KO
         try:
             if self.assertBoardsAreEqual(self.__gameState__[-1], self.__gameState__[-3]):
                 self.notifyUser('KO. Revert back now')
@@ -263,37 +200,26 @@ class Board(QFrame):
         return False
 
     def assertBoardsAreEqual(self, current, previous):
-        # Check for equality of two boards returns boolean
-        rowindex = 0
-        for row in previous:
-            colindex = 0
-            for cell in row:
-                if cell.Piece != current[rowindex][colindex].Piece:
-                    return False
-                colindex = colindex + 1
-            rowindex = rowindex + 1
-
-        return True
+        # Check for equality of two boards
+        return all(cell.Piece == current[row][col].Piece for row, row_cells in enumerate(previous) for col, cell in enumerate(row_cells))
 
     def changeturn(self):
-        # Change the turn to next player and send update interface
+        # Change the turn to the next player and update the interface
         self.gamelogic.toggleTurns()
-        self.counter = 120
+        self.counter = 60
         self.playerTurn.emit(self.gamelogic.turn)
 
     def updateTerritoriesAndCaptives(self):
+        # Emit signals for territories and captives
         self.captives.emit(self.gamelogic.getBlackPrisoner(), Piece.Black)
         self.captives.emit(str(self.gamelogic.getWhitePrisoner()), Piece.White)
         self.territories.emit(str(self.gamelogic.getWhiteTerritories()), Piece.White)
         self.territories.emit(str(self.gamelogic.getBlackTerritories()), Piece.Black)
 
     def whoIsTheWinner(self):
-        # Compare both players score
-        # Is game a draw or is there a winner ?
-        blackscore = self.gamelogic.returnTheScores(Piece.Black)
-        whitescore = self.gamelogic.returnTheScores(Piece.White)
-        self.notifyUser("Scores : \n Black :" + str(blackscore) + "\n White : " + str(
-            whitescore))  # a notification for Black and White score
+        # Compare both players' scores and determine the winner
+        blackscore, whitescore = self.gamelogic.returnTheScores(Piece.Black), self.gamelogic.returnTheScores(Piece.White)
+        self.notifyUser(f"Scores : \n Black : {blackscore}\n White : {whitescore}")
         if blackscore > whitescore:
             self.notifyUser("Black Wins")
         elif blackscore < whitescore:
@@ -308,31 +234,50 @@ class Board(QFrame):
         self.notifier.emit(message)
 
     def resetGame(self):
-        '''clears pieces from the board'''
+        # Reset the game state
         print("Game Reset")
         self.notifyUser("Game Reset")
-        '''clears pieces from the board'''
-        print("Game Reseted")
-        self.boardArray = [[Balls(Piece.NoPiece, i, j) for i in range(self.boardWidth)] for j in
-                        range(self.boardHeight)]
+        self.boardArray = [[Balls(Piece.NoPiece, i, j) for i in range(self.boardWidth)] for j in range(self.boardHeight)]
         self.gamelogic.blackprisoners = 0
         self.gamelogic.whiteprisoners = 0
         self.gamelogic.blackterritories = 0
         self.gamelogic.whiteterritories = 0
         self.gamelogic.turn = Piece.Black
-
-        # Reset the timer
         self.timer.stop()
-        self.counter = 120 # Reset the counter
+        self.counter = 60
         self.timer.start(self.timerSpeed, self)
 
     def skipTurn(self):
+        # Skip a turn and check for game over conditions
         self.notifyUser("Move Passed")
-        self.passcount = self.passcount + 1
+        self.passcount += 1
         self.gamelogic.toggleTurns()
         if self.passcount == 2:
             self.notifyUser("Double turn skipped, game over")
             self.whoIsTheWinner()
             return True
         return False
-''
+
+    def gameOver(self):
+        # Handle game over conditions
+        self.notifyUser("Timer Ran out : Game over")
+        winner = "White Player Wins" if self.gamelogic.turn == Piece.Black else "Black Player Wins"
+        self.notifyUser(winner)
+        reply = QMessageBox.question(self, 'Game Over', f"{winner}\nDo you want to play a new game?",
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                     QMessageBox.StandardButton.No)
+        if reply == QMessageBox.StandardButton.Yes:
+            self.resetGame()
+        else:
+            QCoreApplication.instance().quit()
+
+    def handleKo(self):
+        # Handle KO situation
+        if self.gamelogic.turn == Piece.White:
+            self.gamelogic.captiveIsWhite -= 1
+        else:
+            self.gamelogic.captiveIsBlack -= 1
+        self.__removeFromGlobalState__(self.__gameState__[-2])
+        self.gamelogic.updateLiberty()
+        self.gamelogic.updateTeritories()
+        self.__addCurrentStateToGlobalState__()
