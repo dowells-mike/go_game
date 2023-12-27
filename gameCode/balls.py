@@ -3,14 +3,16 @@ from piece import Piece
 
 
 class Balls(object):
-    # Set some default values for the class attributes
+    # Set to none since the board starts with 0 pieces.
     Piece = Piece.NoPiece
     liberties = 0
+    # x and y are set to -1 because the board is a 8x8 board but only a 7x7 part of it is functional. So we take into
+    # account that offset.
     x = -1
     y = -1
 
     def __init__(self, Piece, x, y):
-        # Set the values for the instance attributes
+        # initialising the constructor
         self.Piece = Piece
         self.liberties = 0
         self.x = x
@@ -29,16 +31,16 @@ class Balls(object):
         self.liberties = liberties
 
     def get_top(self, boardArray):
-        # Get the piece above this instance on the board
+        # Getting the stone above the current one.
         if self.y == 0:
             # If this piece is at the top of the board, return None
             return None
         else:
-            # Otherwise, return the piece above this one in the boardArray
+            # Otherwise, return the stone above this one in the boardArray
             return boardArray[self.y - 1][self.x]
 
     def get_right(self, boardArray):
-        # Get the piece to the right of this instance on the board
+        # Getting the stone to the right of the current one.
         if self.x == 6:
             # If this piece is at the right edge of the board, return None
             return None
@@ -47,7 +49,7 @@ class Balls(object):
             return boardArray[self.y][self.x + 1]
 
     def get_left(self, boardArray):
-        # Get the piece to the left of this instance on the board
+        # Getting the stone to the left of the current one.
         if self.x == 0:
             # If this piece is at the left edge of the board, return None
             return None
@@ -56,7 +58,7 @@ class Balls(object):
             return boardArray[self.y][self.x - 1]
 
     def get_down(self, boardArray):
-        # Get the piece below this instance on the board
+        # Getting the stone to the right of the current one.
         if self.y == 6:
             # If this piece is at the bottom of the board, return None
             return None

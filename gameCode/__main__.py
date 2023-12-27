@@ -7,6 +7,7 @@ from players import PlayerNameDialog
 
 
 class GoGameHomePage(QMainWindow):
+    """Shortcuts defined as global constants for better clarity"""
     BACKGROUND_IMAGE = "background.jpeg"
     SHORTCUT_EXIT = "Ctrl+E"
     SHORTCUT_SKIP_TURN = "Ctrl+S"
@@ -43,7 +44,7 @@ class GoGameHomePage(QMainWindow):
         start_game_button.setFixedSize(200, 60)
         layout.addWidget(start_game_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def start_new_game(self):
+    def start_new_game(self): # method called when starting the game
         self.game_window = Go()
         self.game_window.show()
         self.close()
@@ -88,7 +89,7 @@ class GoGameHomePage(QMainWindow):
             and capturing opponent's pieces by surrounding them.</p>
 
             <p>Pieces are placed on intersections, not in squares. Once played, pieces are not moved, but they can be captured,
-            in which case they are removed and kept as prisoners by the capturing player.</p>
+            in which case they are removed and kept as prisoners by the capturing player.</p><br>
 
             <br><strong>Press (Ctrl + E) to Exit</strong>
             <br><strong>Press (Ctrl + S) to Skip Turn</strong>
@@ -107,7 +108,7 @@ class GoGameHomePage(QMainWindow):
             <p>&copy; 2023 Mike, Segun, Kehinde. All rights reserved.</p>
 
             <p>GO Game is a classic board game where players compete to control territories by strategically placing pieces on
-            the board. This version brings you a digital adaptation for a challenging and enjoyable gaming experience.</p>
+            the board. This version brings you a digital adaptation for a challenging and enjoyable gaming experience.</p><br>
 
             <br><strong>Press OK to continue</strong>
         """
