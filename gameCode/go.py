@@ -3,8 +3,9 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
-from board import Board
+from board import GameBoard
 from score_board import ScoreBoard
+from players import PlayerNameDialog
 
 
 class Go(QMainWindow):
@@ -22,10 +23,13 @@ class Go(QMainWindow):
         return self.scoreBoard
 
     def initUI(self):
-        self.board = Board(self)
+        self.board = GameBoard(self)
         self.setCentralWidget(self.board)
         self.board.setStyleSheet("padding: 0px;")
-        self.scoreBoard = ScoreBoard()
+        dialog = PlayerNameDialog()
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            player1_name, player2_name = dialog.get_player_names()
+            self.scoreBoard = ScoreBoard(player1_name, player2_name)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
         self.scoreBoard.make_connection(self.board)
         self.statusBar = QStatusBar()
@@ -63,11 +67,11 @@ class Go(QMainWindow):
         skipAction = QAction("Skip Turn", self)
         skipAction.setShortcut("Ctrl+S")
         passMenu = mainMenu.addAction(skipAction)
-        skipAction.triggered.connect(self.click)
+        skipAction.triggered.connect(self.board.skip_turn)
 
         resetAction = QAction("Reset", self)
         resetAction.setShortcut("Ctrl+R")
-        resetAction.triggered.connect(self.board.resetGame)
+        resetAction.triggered.connect(self.board.reset_game)
         resetMenu = mainMenu.addAction(resetAction)
 
         helpAction = QAction("Help", self)
@@ -133,16 +137,16 @@ class Go(QMainWindow):
         QApplication.quit()
 
     def click(self):
-        if self.getBoard().changeturn():  # link to board to change turn
+        if self.getBoard().change_turn():  # link to board to change turn
             self.close()
         self.update()
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key.Key_R:
-            self.getBoard().resetGame()
+            self.getBoard().reset_game()
             self.update()
         if event.key() == QtCore.Qt.Key.Key_P:
-            if self.getBoard().skipTurn():
+            if self.getBoard().skip_turn():
                 self.close()
             self.update()
 

@@ -16,19 +16,19 @@ class Balls(object):
         self.x = x
         self.y = y
 
-    def getPiece(self):
+    def get_piece(self):
         # Return the value of the Piece attribute for the instance
         return self.Piece
 
-    def getLiberties(self):
+    def get_liberties(self):
         # Return the value of the liberties attribute for the instance
         return self.liberties
 
-    def setLiberties(self, liberties):
+    def set_liberties(self, liberties):
         # Set the value of the liberties attribute for the instance
         self.liberties = liberties
 
-    def getTop(self, boardArray):
+    def get_top(self, boardArray):
         # Get the piece above this instance on the board
         if self.y == 0:
             # If this piece is at the top of the board, return None
@@ -37,7 +37,7 @@ class Balls(object):
             # Otherwise, return the piece above this one in the boardArray
             return boardArray[self.y - 1][self.x]
 
-    def getRight(self, boardArray):
+    def get_right(self, boardArray):
         # Get the piece to the right of this instance on the board
         if self.x == 6:
             # If this piece is at the right edge of the board, return None
@@ -46,7 +46,7 @@ class Balls(object):
             # Otherwise, return the piece to the right of this one in the boardArray
             return boardArray[self.y][self.x + 1]
 
-    def getLeft(self, boardArray):
+    def get_left(self, boardArray):
         # Get the piece to the left of this instance on the board
         if self.x == 0:
             # If this piece is at the left edge of the board, return None
@@ -55,7 +55,7 @@ class Balls(object):
             # Otherwise, return the piece to the left of this one in the boardArray
             return boardArray[self.y][self.x - 1]
 
-    def getDown(self, boardArray):
+    def get_down(self, boardArray):
         # Get the piece below this instance on the board
         if self.y == 6:
             # If this piece is at the bottom of the board, return None

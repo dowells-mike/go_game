@@ -2,142 +2,100 @@
 from piece import Piece
 from balls import Balls
 
-# Define the GameLogic class
-class GameLogic:
-    # Initialize class-level variables
-    turn = Piece.White
-    xPosition = 0
-    yPosition = 0
-    boardArray = 0
-    captiveIsWhite = 0
-    captiveIsBlack = 0
-    territoriesIsWhite = 0
-    territoriesIsBlack = 0
+class GameEngine:
+    turn = Piece.Black
+    x_position = 0
+    y_position = 0
+    board_array = 0
+    captive_is_white = 0
+    captive_is_black = 0
+    territories_is_white = 0
+    territories_is_black = 0
 
-    # Method to update current parameters
-    def updateparams(self, boardArray, xPosition, yPosition):
-        # Update current variables with provided values
-        self.xPosition = xPosition
-        self.yPosition = yPosition
-        self.boardArray = boardArray
+    def update_params(self, board_array, x_position, y_position):
+        self.x_position = x_position
+        self.y_position = y_position
+        self.board_array = board_array
 
-    # Method to check game logic based on the current state
-    def checklogic(self, boardArray, xpos, ypos):
-        # Update current variables with provided values
-        self.xPosition = xpos
-        self.yPosition = ypos
-        self.boardArray = boardArray
-
-    # Method to check if the position is not occupied
-    def postionNotOccupied(self):
-        # Assert that the insertion position is not occupied
-        if self.boardArray[self.yPosition][self.xPosition].Piece == Piece.NoPiece:
+    def position_not_occupied(self):
+        if self.board_array[self.y_position][self.x_position].Piece == Piece.NoPiece:
             return True
         else:
             return False
 
-    # Method to toggle turns between players
-    def toggleTurns(self):
-        # Swap turns between black and white
-        print("turn changed")
+    def toggle_turns(self):
         if self.turn == Piece.Black:
             self.turn = Piece.White
         else:
             self.turn = Piece.Black
 
-    # Method to place a piece on the board
-    def plotTheBalls(self):
-        # Place a piece on the selected position based on the current turn
+    def plot_the_balls(self):
         if self.turn == Piece.Black:
-            self.boardArray[self.yPosition][self.xPosition].Piece = Piece.Black
+            self.board_array[self.y_position][self.x_position].Piece = Piece.Black
         else:
-            self.boardArray[self.yPosition][self.xPosition].Piece = Piece.White
+            self.board_array[self.y_position][self.x_position].Piece = Piece.White
 
-        # Print information about the placed piece
-        print("Liberties = " + str(self.boardArray[self.yPosition][self.xPosition].liberties) + "x pos = " + str(
-            self.boardArray[self.yPosition][self.xPosition].x) + "y pos = " + str(self.boardArray[self.yPosition][self.xPosition].y))
-
-    # Method to update liberties of all available pieces on the board
-    def updateLiberty(self):
-        # Iterate through the board and update liberties for each piece
+    def update_liberty(self):
         count = 0
-        for row in self.boardArray:
+        for row in self.board_array:
             for cell in row:
                 count = 0
                 if cell.Piece != Piece.NoPiece:
-                    pieceColor = cell.Piece
+                    piece_color = cell.Piece
 
-                    # Check liberties in each direction and update count
-                    if cell.getTop(self.boardArray) is not None and (
-                            cell.getTop(self.boardArray).Piece == pieceColor or cell.getTop(
-                        self.boardArray).Piece == Piece.NoPiece):
+                    if cell.get_top(self.board_array) is not None and (cell.get_top(self.board_array).Piece == piece_color or cell.get_top(self.board_array).Piece == Piece.NoPiece):
                         count = count + 1
-                    if cell.getRight(self.boardArray) is not None and (
-                            cell.getRight(self.boardArray).Piece == pieceColor or cell.getRight(
-                        self.boardArray).Piece == Piece.NoPiece):
+                    if cell.get_right(self.board_array) is not None and (cell.get_right(self.board_array).Piece == piece_color or cell.get_right(self.board_array).Piece == Piece.NoPiece):
                         count = count + 1
-                    if cell.getLeft(self.boardArray) is not None and (
-                            cell.getLeft(self.boardArray).Piece == pieceColor or cell.getLeft(
-                        self.boardArray).Piece == Piece.NoPiece):
+                    if cell.get_left(self.board_array) is not None and (cell.get_left(self.board_array).Piece == piece_color or cell.get_left(self.board_array).Piece == Piece.NoPiece):
                         count = count + 1
-                    if cell.getDown(self.boardArray) is not None and (
-                            cell.getDown(self.boardArray).Piece == pieceColor or cell.getDown(
-                        self.boardArray).Piece == Piece.NoPiece):
+                    if cell.get_down(self.board_array) is not None and (cell.get_down(self.board_array).Piece == piece_color or cell.get_down(self.board_array).Piece == Piece.NoPiece):
                         count = count + 1
-                    # Set the liberties count for the current cell
-                    cell.setLiberties(count)
+                    cell.set_liberties(count)
 
-    # Method to update captives on the board
-    def updateCaptives(self):
-        # Remove all pieces with 0 liberties left
-        for row in self.boardArray:
+    def update_captives(self):
+        for row in self.board_array:
             for cell in row:
                 if cell.liberties == 0 and cell.Piece != Piece.NoPiece:
                     if cell.Piece == Piece.Black:
-                        self.captiveIsWhite = self.captiveIsWhite + 1
-                        self.boardArray[cell.y][cell.x] = Balls(Piece.NoPiece, cell.x, cell.y)
-                        print("Black Ball Captured at x: " + str(cell.x) + ", y: " + str(cell.y))
-                        return "Black Ball Captured at x: " + str(cell.x) + ", y: " + str(cell.y)
+                        self.captive_is_white = self.captive_is_white + 1
+                        self.board_array[cell.y][cell.x] = Balls(Piece.NoPiece, cell.x, cell.y)
+                        return "Black Ball Captured "
                     elif cell.Piece == Piece.White:
-                        self.captiveIsBlack = self.captiveIsBlack + 1
-                        self.boardArray[cell.y][cell.x] = Balls(Piece.NoPiece, cell.x, cell.y)
-                        print("White Ball Captured at x: " + str(cell.x) + ", y: " + str(cell.y))
-                        return "White Ball Captured at x: " + str(cell.x) + ", y: " + str(cell.y)
+                        self.captive_is_black = self.captive_is_black + 1
+                        self.board_array[cell.y][cell.x] = Balls(Piece.NoPiece, cell.x, cell.y)
+                        return "White Ball Captured "
 
-    # Method to update captives in a specific situation
-    def updateCaptivesTheSecond(self):
+    def update_captives_the_second(self):
         # Check neighboring cells and capture pieces if necessary
-        if self.boardArray[self.yPosition][self.xPosition].getTop(self.boardArray) is not None and self.boardArray[self.yPosition][
-            self.xPosition].getTop(self.boardArray).liberties == 0 and self.boardArray[self.yPosition][
-            self.xPosition].getTop(self.boardArray).Piece != Piece.NoPiece:
-            return self.capturePiece(self.xPosition, self.yPosition - 1)
-        elif self.boardArray[self.yPosition][self.xPosition].getRight(self.boardArray) is not None and self.boardArray[self.yPosition][
-            self.xPosition].getRight(self.boardArray).liberties == 0 and self.boardArray[self.yPosition][
-            self.xPosition].getRight(self.boardArray).Piece != Piece.NoPiece:
-            return self.capturePiece(self.xPosition + 1, self.yPosition)
-        elif self.boardArray[self.yPosition][self.xPosition].getLeft(self.boardArray) is not None and self.boardArray[self.yPosition][
-            self.xPosition].getLeft(self.boardArray).liberties == 0 and self.boardArray[self.yPosition][
-            self.xPosition].getLeft(self.boardArray).Piece != Piece.NoPiece:
-            return self.capturePiece(self.xPosition - 1, self.yPosition)
-        elif self.boardArray[self.yPosition][self.xPosition].getDown(self.boardArray) is not None and self.boardArray[self.yPosition][
-            self.xPosition].getDown(self.boardArray).liberties == 0 and self.boardArray[self.yPosition][
-            self.xPosition].getDown(self.boardArray).Piece != Piece.NoPiece:
-            return self.capturePiece(self.xPosition, self.yPosition + 1)
+        if self.board_array[self.y_position][self.x_position].get_top(self.board_array) is not None and self.board_array[self.y_position][
+            self.x_position].get_top(self.board_array).liberties == 0 and self.board_array[self.y_position][
+            self.x_position].get_top(self.board_array).Piece != Piece.NoPiece:
+            return self.capture_piece(self.x_position, self.y_position - 1)
+        elif self.board_array[self.y_position][self.x_position].get_right(self.board_array) is not None and self.board_array[self.y_position][
+            self.x_position].get_right(self.board_array).liberties == 0 and self.board_array[self.y_position][
+            self.x_position].get_right(self.board_array).Piece != Piece.NoPiece:
+            return self.capture_piece(self.x_position + 1, self.y_position)
+        elif self.board_array[self.y_position][self.x_position].get_left(self.board_array) is not None and self.board_array[self.y_position][
+            self.x_position].get_left(self.board_array).liberties == 0 and self.board_array[self.y_position][
+            self.x_position].get_left(self.board_array).Piece != Piece.NoPiece:
+            return self.capture_piece(self.x_position - 1, self.y_position)
+        elif self.board_array[self.y_position][self.x_position].get_down(self.board_array) is not None and self.board_array[self.y_position][
+            self.x_position].get_down(self.board_array).liberties == 0 and self.board_array[self.y_position][
+            self.x_position].get_down(self.board_array).Piece != Piece.NoPiece:
+            return self.capture_piece(self.x_position, self.y_position + 1)
 
-    # Method to capture a piece at a specific position
-    def capturePiece(self, xpos, ypos):
-        # Capture a piece at the given position
-        if self.boardArray[ypos][xpos].Piece == 1:  # if the piece is white
-            self.captiveIsBlack = self.captiveIsBlack + 1
-            self.boardArray[ypos][xpos] = Balls(Piece.NoPiece, xpos, ypos)
-            return "White piece Captured at x: " + str(xpos) + ", y: " + str(ypos)
-        else:  # if the piece is black
-            self.captiveIsWhite = self.captiveIsWhite + 1
-            self.boardArray[ypos][xpos] = Balls(Piece.NoPiece, xpos, ypos)
-            return "Black piece Captured at x: " + str(xpos) + ", y: " + str(ypos)
-
-    # Method to check if a move is considered bad
-    def isBadMove(self):
+    def capture_piece(self, x, y):
+        if self.board_array[y][x].Piece == Piece.Black:
+            self.captive_is_white = self.captive_is_white + 1
+            self.board_array[y][x] = Balls(Piece.NoPiece, x, y)
+            return "Black Ball Captured "
+        elif self.board_array[y][x].Piece == Piece.White:
+            self.captive_is_black = self.captive_is_black + 1
+            self.board_array[y][x] = Balls(Piece.NoPiece, x, y)
+            return "White Ball Captured "
+        
+    def is_bad_move(self):
         oppositeplayer = 0
         if self.turn == Piece.Black:
             oppositeplayer = Piece.White
@@ -146,71 +104,73 @@ class GameLogic:
         count = 0
 
         # Check adjacent cells and count how many belong to the opposite player
-        if self.boardArray[self.yPosition][self.xPosition].getTop(self.boardArray) is None or self.boardArray[self.yPosition][
-            self.xPosition].getTop(self.boardArray).Piece == oppositeplayer:
+        if self.board_array[self.y_position][self.x_position].get_top(self.board_array) is None or self.board_array[self.y_position][
+            self.x_position].get_top(self.board_array).Piece == oppositeplayer:
             count = count + 1
-        if self.boardArray[self.yPosition][self.xPosition].getLeft(self.boardArray) is None or self.boardArray[self.yPosition][
-            self.xPosition].getLeft(self.boardArray).Piece == oppositeplayer:
+        if self.board_array[self.y_position][self.x_position].get_left(self.board_array) is None or self.board_array[self.y_position][
+            self.x_position].get_left(self.board_array).Piece == oppositeplayer:
             count = count + 1
-        if self.boardArray[self.yPosition][self.xPosition].getRight(self.boardArray) is None or self.boardArray[self.yPosition][
-            self.xPosition].getRight(self.boardArray).Piece == oppositeplayer:
+        if self.board_array[self.y_position][self.x_position].get_right(self.board_array) is None or self.board_array[self.y_position][
+            self.x_position].get_right(self.board_array).Piece == oppositeplayer:
             count = count + 1
-        if self.boardArray[self.yPosition][self.xPosition].getDown(self.boardArray) is None or self.boardArray[self.yPosition][
-            self.xPosition].getDown(self.boardArray).Piece == oppositeplayer:
+        if self.board_array[self.y_position][self.x_position].get_down(self.board_array) is None or self.board_array[self.y_position][
+            self.x_position].get_down(self.board_array).Piece == oppositeplayer:
             count = count + 1
 
         # Check if the move is considered bad based on the surrounding conditions
         if count == 4:
-            if self.boardArray[self.yPosition][self.xPosition].getTop(self.boardArray) is not None and self.boardArray[self.yPosition][
-                self.xPosition].getTop(self.boardArray).liberties == 1:
+            if self.board_array[self.y_position][self.x_position].get_top(self.board_array) is not None and self.board_array[self.y_position][
+                self.x_position].get_top(self.board_array).liberties == 1:
                 return False
-            if self.boardArray[self.yPosition][self.xPosition].getLeft(self.boardArray) is not None and \
-                    self.boardArray[self.yPosition][
-                        self.xPosition].getLeft(self.boardArray).liberties == 1:
+            if self.board_array[self.y_position][self.x_position].get_left(self.board_array) is not None and \
+                    self.board_array[self.y_position][
+                        self.x_position].get_left(self.board_array).liberties == 1:
                 return False
-            if self.boardArray[self.yPosition][self.xPosition].getRight(self.boardArray) is not None and \
-                    self.boardArray[self.yPosition][
-                        self.xPosition].getRight(self.boardArray).liberties == 1:
+            if self.board_array[self.y_position][self.x_position].get_right(self.board_array) is not None and \
+                    self.board_array[self.y_position][
+                        self.x_position].get_right(self.board_array).liberties == 1:
                 return False
-            if self.boardArray[self.yPosition][self.xPosition].getDown(self.boardArray) is not None and \
-                    self.boardArray[self.yPosition][
-                        self.xPosition].getDown(self.boardArray).liberties == 1:
+            if self.board_array[self.y_position][self.x_position].get_down(self.board_array) is not None and \
+                    self.board_array[self.y_position][
+                        self.x_position].get_down(self.board_array).liberties == 1:
                 return False
             return True
         else:
             return False
+    
 
-    # Methods to retrieve information about prisoners, territories, and scores
-    def getBlackPrisoner(self):
-        return str(self.captiveIsBlack)
+    
+    def get_black_prisoner(self):
+        return str(self.captive_is_white)
 
-    def getWhitePrisoner(self):
-        return str(self.captiveIsWhite)
+    def get_white_prisoner(self):
+        return str(self.captive_is_black)
 
-    def getBlackTerritories(self):
-        return str(self.territoriesIsBlack)
+    def get_black_territories(self):
+        return str(self.territories_is_black)
 
-    def getWhiteTerritories(self):
-        return str(self.territoriesIsWhite)
+    def get_white_territories(self):
+        return str(self.territories_is_white)
 
-    # Method to update territories based on the current state of the board
-    def updateTeritories(self):
+    def update_territories(self):
         # Count the number of positions occupied by each player
-        counterOne = 0
-        countTwo = 0
-        for row in self.boardArray:
+        count1 = 0
+        count2 = 0
+        for row in self.board_array:
             for cell in row:
                 if cell.Piece == Piece.Black:
-                    counterOne = counterOne + 1
+                    count1 = count1 + 1
                 elif cell.Piece == Piece.White:
-                    countTwo = countTwo + 1
+                    count2 = count2 + 1
         # Update the territories for both players
-        self.territoriesIsWhite = countTwo
-        self.territoriesIsBlack = counterOne
+        self.territories_is_white = count2
+        self.territories_is_black = count1
+        
+    def return_the_scores(self, Piece):
+        if Piece == Piece.Black:
+            return self.captive_is_white + self.territories_is_black
+        elif Piece == Piece.White:
+            return self.captive_is_black + self.territories_is_white
 
-    # Method to return scores for a specific player
-    def returnTheScores(self, Piece):
-        if Piece == 2:
-            return self.territoriesIsBlack + self.captiveIsBlack
-        else:
-            return self.territoriesIsWhite + self.captiveIsWhite
+   
+
