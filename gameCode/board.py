@@ -11,17 +11,18 @@ from PyQt6.QtCore import QCoreApplication
 class GameBoard(QFrame):
     BOARD_WIDTH = 7
     BOARD_HEIGHT = 7
-    TIMER_SPEED = 1000
-    COUNTER = 60
-    passcount = 0
-    game_engine = GameEngine()  # getting game logic class
-    TO_TIME = pyqtSignal(int)
-    TO_CLICK = pyqtSignal(str)
+    TIMER_SPEED = 1000  # This is set to 1 second
+    COUNTER = 60 # The time allowed before a game over is 1 minute
+    passcount = 0   # Used to keep track of how many turns have been skipped consecutively
+    game_engine = GameEngine()  # we will need the GameEngine class
+    TO_TIME = pyqtSignal(int)   # This will be used for the timer events
+    TO_CLICK = pyqtSignal(str)  # This will be used for the clicking events
     captives = pyqtSignal(str, int)
     territories = pyqtSignal(str, int)
     notifier = pyqtSignal(str)
     player_turn = pyqtSignal(int)
 
+    # The constructor
     def __init__(self, parent):
         super().__init__(parent)
         self.board_array = None
@@ -30,6 +31,7 @@ class GameBoard(QFrame):
         self.init_board()
         self.game_states = []
 
+    # Initialising the board
     def init_board(self):
         self.timer = QBasicTimer()
         self.is_started = False
@@ -58,6 +60,7 @@ class GameBoard(QFrame):
         else:
             super(GameBoard, self).timerEvent(event)
 
+    # Defining a painter that will give form to our shapes
     def paintEvent(self, event):
         painter = QPainter(self)
         self.draw_board(painter)
@@ -78,6 +81,7 @@ class GameBoard(QFrame):
             self.update_territories_and_captives()
         self.update()
 
+    # The function draws a 7x7 board using square shapes with two different colours.
     def draw_board(self, painter):
         color = QColor(169, 169, 169)
         color2 = QColor(211, 211, 211)
@@ -92,6 +96,7 @@ class GameBoard(QFrame):
                 painter.restore()
                 brush.setColor(color2 if brush.color() == color else color)
 
+    # function to display the stones on the board
     def draw_pieces(self, painter):
         for row in range(len(self.board_array)):
             for col in range(len(self.board_array[0])):
@@ -106,6 +111,7 @@ class GameBoard(QFrame):
                 painter.drawEllipse(center, round(radius), round(radius))
                 painter.restore()
 
+    # function to give a color to the stones by using the enum values of the Pieces
     def get_piece_color(self, row, col):
         piece = self.board_array[col][row].Piece
         if piece == Piece.NoPiece:
@@ -115,6 +121,7 @@ class GameBoard(QFrame):
         elif piece == Piece.Black:
             return QColor(Qt.GlobalColor.black)
 
+    # checks if the current player's move is allowed
     def is_move_allowed(self):
         if self.game_engine.position_not_occupied():
             if self.game_engine.is_bad_move():
@@ -175,8 +182,6 @@ class GameBoard(QFrame):
         self.territories.emit(str(self.game_engine.get_white_territories()), Piece.White)
         self.territories.emit(str(self.game_engine.get_black_territories()), Piece.Black)
 
-
-
     def check_winner(self):
         black_score, white_score = self.game_engine.return_the_scores(Piece.Black), self.game_engine.return_the_scores(Piece.White)
         self.notify_user(f"Scores : \n Black : {black_score}\n White : {white_score}")
@@ -226,6 +231,8 @@ class GameBoard(QFrame):
             self.reset_game()
         else:
             QCoreApplication.instance().quit()
+
+    # Function to handle the KO Rule
     def handle_ko(self):
         if self.game_engine.turn == Piece.White:
             self.game_engine.captive_is_white -= 1
