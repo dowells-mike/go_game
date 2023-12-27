@@ -12,7 +12,7 @@ class GameBoard(QFrame):
     BOARD_WIDTH = 7
     BOARD_HEIGHT = 7
     TIMER_SPEED = 1000  # This is set to 1 second
-    COUNTER = 60 # The time allowed before a game over is 1 minute
+    COUNTER = 120 # The time allowed before a game over is 2 minutes
     passcount = 0   # Used to keep track of how many turns have been skipped consecutively
     game_engine = GameEngine()  # we will need the GameEngine class
     TO_TIME = pyqtSignal(int)   # This will be used for the timer events
