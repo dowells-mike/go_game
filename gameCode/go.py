@@ -1,13 +1,14 @@
+# from PyQt6.QtWidgets import QDesktopWidget
 from PyQt6 import QtCore
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
-from board import Board
+from board import GameBoard
 from score_board import ScoreBoard
+from players import PlayerNameDialog
 
 
 class Go(QMainWindow):
-
     def __init__(self):
         super().__init__()
         self.statusBar = None
@@ -22,20 +23,14 @@ class Go(QMainWindow):
         return self.scoreBoard
 
     def initUI(self):
-        self.board = Board(self)
+        self.board = GameBoard(self)
         self.setCentralWidget(self.board)
-        self.board.setStyleSheet(
-            """
-               
-                 padding:0px;
-                 
-                
-            """
-        )
-       # self.board.setContentsMargins(10, 10, 10, 10)  # pad the board
-        self.scoreBoard = ScoreBoard()
+        self.board.setStyleSheet("padding: 0px;")
+        dialog = PlayerNameDialog()
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            player1_name, player2_name = dialog.get_player_names()
+            self.scoreBoard = ScoreBoard(player1_name, player2_name)
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
-        # self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.scoreBoard)
         self.scoreBoard.make_connection(self.board)
         self.statusBar = QStatusBar()
         self.setStatusBar(self.statusBar)
@@ -48,119 +43,113 @@ class Go(QMainWindow):
         self.show()
 
     def center(self):
-        '''centers the window on the screen'''
-        gr = self.frameGeometry()
-        screen = self.screen().availableGeometry().center()
+        frameGeometry = self.frameGeometry()
+        screen = QApplication.primaryScreen()
+        centerPoint = screen.geometry().center()
+        frameGeometry.moveCenter(centerPoint)
+        self.move(frameGeometry.topLeft())
 
-        gr.moveCenter(screen)
-        self.move(gr.topLeft())
-        size = self.geometry()
 
     def menu(self):
-        # set up menus
-        mainMenu = self.menuBar()  # create and a menu bar
-        # main menu stylesheet
+        mainMenu = self.menuBar()
         mainMenu.setStyleSheet(
             """
-                 width: 100%; 
-                 padding:10px;
-                 padding-left:130px;
-                 text-align: center; 
-                 font-size: 15px;
-                 font-family:Lucida Sans;
-                 background: #f5f3f0;
-                
-               } 
-               helpMenu
+            width: 100%;
+            padding: 10px;
+            padding-left: 130px;
+            text-align: center;
+            font-size: 15px;
+            font-family: Lucida Sans;
+            background: #f5f3f0;
             """
         )
-        # skip menu
-        skipAction = QAction("Skip Turn", self)
-        skipAction.setShortcut("Ctrl+S")  # set shortcut
-        passMenu = mainMenu.addAction(skipAction)
-        skipAction.triggered.connect(self.click)
 
-        # reset
+        skipAction = QAction("Skip Turn", self)
+        skipAction.setShortcut("Ctrl+S")
+        passMenu = mainMenu.addAction(skipAction)
+        skipAction.triggered.connect(self.board.skip_turn)
+
         resetAction = QAction("Reset", self)
-        resetAction.setShortcut("Ctrl+R")  # set shortcut
-        resetAction.triggered.connect(self.board.resetGame)
+        resetAction.setShortcut("Ctrl+R")
+        resetAction.triggered.connect(self.board.reset_game)
         resetMenu = mainMenu.addAction(resetAction)
 
-        # help menu
         helpAction = QAction("Help", self)
-        helpAction.setShortcut("Ctrl+H")  # set shortcut
+        helpAction.setShortcut("Ctrl+H")
         helpMenu = mainMenu.addAction(helpAction)
         helpAction.triggered.connect(self.help)
 
         showWidgetAction = QAction("Show Widget", self)
         showWidgetAction.setShortcut("Ctrl+W")
-        showwidgetMenu= mainMenu.addAction(showWidgetAction)
+        showwidgetMenu = mainMenu.addAction(showWidgetAction)
         showWidgetAction.triggered.connect(self.showScorerBoard)
 
-        # About Menu
         aboutAction = QAction(QIcon("./icons/about.png"), "About", self)
         aboutAction.setShortcut("Ctrl+A")
-        aboutMenu = mainMenu.addAction(aboutAction)  # connect the action to the function below
+        aboutMenu = mainMenu.addAction(aboutAction)
         aboutAction.triggered.connect(self.about)
 
-        # exit menu
         exitAction = QAction("Exit", self)
-        exitAction.setShortcut("Ctrl+E")  # set shortcut
+        exitAction.setShortcut("Ctrl+E")
         exitMenu = mainMenu.addAction(exitAction)
         exitAction.triggered.connect(self.exit)
 
-        # help message display rules
-
     def help(self):
+        help_text = """
+            <p><strong>How to play Go</strong></p>
+            <p><strong>Rules:</strong></p>
+            <p>Go is played on a board with an empty grid. Players, one with black pieces and the other with white pieces,
+            take turns placing their pieces on vacant intersections. The goal is to form territories by surrounding empty areas
+            and capturing opponent's pieces by surrounding them.</p>
+
+            <p>Pieces are placed on intersections, not in squares. Once played, pieces are not moved, but they can be captured,
+            in which case they are removed and kept as prisoners by the capturing player.</p>
+
+            <br><strong>Press (Ctrl + E) to Exit</strong>
+            <br><strong>Press (Ctrl + S) to Skip Turn</strong>
+            <br><strong>Press (Ctrl + R) to Reset</strong>
+        """
+
         msg = QMessageBox()
-        msg.setText(
-            "<p><strong>How to play go</strong></p> "
-            "<p><strong>Rules: </strong></p>"
-            "<p>A game of Go starts with an empty board. Each player has an effectively unlimited supply of pieces ("
-            "called balls), one taking the black piece, the other taking white. The main object of the game is to "
-            "use your pieces to form territories by surrounding vacant areas of the board. It is also possible to "
-            "capture your opponent's pieces by completely surrounding them..</p> "
-
-            "<p>Players take turns, placing one of their pieces on a vacant point at each turn, with Black playing "
-            "first. Note that piece are placed on the intersections of the lines rather than in the squares and once "
-            "played pieces are not moved. However they may be captured, in which case they are removed from the "
-            "board, and kept by the capturing player as prisoners.</p> "
-
-            "<br><strong> press ( Ctrl + E ) to Exit <br>"
-            "<br><strong> press ( Ctrl + S ) to Skip Turn <br>"
-            "<br><strong> press ( Ctrl + R ) or Reset <br>"
-
-        )
+        msg.setText(help_text)
         msg.setWindowTitle("Help")
         msg.exec()
 
     def about(self):
-        msg = QMessageBox(self)
-        msg.setWindowTitle("About")
-        msg.setText("ABOUT GO game")
-        msg.setText("Go game v1.0\n\n@2022 ApexPlayground, SaheedCodes. All rights reserved")
-        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
-        msg.show()
+        about_text = """
+            <p><strong>About GO Game</strong></p>
+            <p>Version: 1.0.0</p>
+            <p>&copy; 2023 Mike, Segun, Kehinde. All rights reserved.</p>
 
-        # exit function
+            <p>GO Game is a classic board game where players compete to control territories by strategically placing pieces on
+            the board. This version brings you a digital adaptation for a challenging and enjoyable gaming experience.</p>
+
+            <br><strong>Press OK to continue</strong>
+        """
+
+        msg = QMessageBox(self)
+        msg.setWindowTitle("About GO Game")
+        msg.setText(about_text)
+        msg.setStandardButtons(QMessageBox.StandardButton.Ok)
+        msg.exec()
 
     def exit(self):
-        QtCore.QCoreApplication.quit()
+        QApplication.quit()
 
-    # click method for pass
     def click(self):
-        if self.getBoard().changeturn():  # link to board to change turn
+        if self.getBoard().change_turn():  # link to board to change turn
             self.close()
         self.update()
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key.Key_R:
-            self.getBoard().resetGame()
+            self.getBoard().reset_game()
             self.update()
         if event.key() == QtCore.Qt.Key.Key_P:
-            if self.getBoard().skipTurn():
+            if self.getBoard().skip_turn():
                 self.close()
             self.update()
+
     def showScorerBoard(self):
-        if not self.scoreBoard.isVisible():
-            self.scoreBoard.show()
+        # Show or hide the scoreboard widget
+        self.scoreBoard.setVisible(not self.scoreBoard.isVisible())
