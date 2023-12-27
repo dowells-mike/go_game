@@ -8,14 +8,15 @@ from balls import Balls
 from game_logic import GameEngine
 from PyQt6.QtCore import QCoreApplication
 
+
 class GameBoard(QFrame):
     BOARD_WIDTH = 7
     BOARD_HEIGHT = 7
     TIMER_SPEED = 1000  # This is set to 1 second
-    COUNTER = 120 # The time allowed before a game over is 2 minutes
-    passcount = 0   # Used to keep track of how many turns have been skipped consecutively
+    COUNTER = 120  # The time allowed before a game over is 2 minutes
+    passcount = 0  # Used to keep track of how many turns have been skipped consecutively
     game_engine = GameEngine()  # we will need the GameEngine class
-    TO_TIME = pyqtSignal(int)   # This will be used for the timer events
+    TO_TIME = pyqtSignal(int)  # This will be used for the timer events
     TO_CLICK = pyqtSignal(str)  # This will be used for the clicking events
     captives = pyqtSignal(str, int)
     territories = pyqtSignal(str, int)
@@ -36,7 +37,8 @@ class GameBoard(QFrame):
         self.timer = QBasicTimer()
         self.is_started = False
         self.start()
-        self.board_array = [[Balls(Piece.NoPiece, i, j) for i in range(self.BOARD_WIDTH)] for j in range(self.BOARD_HEIGHT)]
+        self.board_array = [[Balls(Piece.NoPiece, i, j) for i in range(self.BOARD_WIDTH)] for j in
+                            range(self.BOARD_HEIGHT)]
         self.game_engine = GameEngine()
 
     def square_width(self):
@@ -102,7 +104,7 @@ class GameBoard(QFrame):
             for col in range(len(self.board_array[0])):
                 painter.save()
                 painter.translate((self.square_width() * row) + self.square_width() * 0.70,
-                                (self.square_height() * col) + self.square_height() * 0.70)
+                                  (self.square_height() * col) + self.square_height() * 0.70)
                 color = self.get_piece_color(row, col)
                 painter.setPen(color)
                 painter.setBrush(color)
@@ -149,7 +151,6 @@ class GameBoard(QFrame):
 
     def update_states(self):
         self.game_states.append(self.copy_board())
-       
 
     def remove_states(self, previous_state):
         for row_index, row in enumerate(previous_state):
@@ -169,11 +170,12 @@ class GameBoard(QFrame):
         return False
 
     def assert_boards_are_equal(self, current, previous):
-        return all(cell.Piece == current[row][col].Piece for row, row_cells in enumerate(previous) for col, cell in enumerate(row_cells))
+        return all(cell.Piece == current[row][col].Piece for row, row_cells in enumerate(previous) for col, cell in
+                   enumerate(row_cells))
 
     def change_turn(self):
         self.game_engine.toggle_turns()
-        self.COUNTER = 60
+        self.COUNTER = 120
         self.player_turn.emit(self.game_engine.turn)
 
     def update_territories_and_captives(self):
@@ -183,7 +185,8 @@ class GameBoard(QFrame):
         self.territories.emit(str(self.game_engine.get_black_territories()), Piece.Black)
 
     def check_winner(self):
-        black_score, white_score = self.game_engine.return_the_scores(Piece.Black), self.game_engine.return_the_scores(Piece.White)
+        black_score, white_score = self.game_engine.return_the_scores(Piece.Black), self.game_engine.return_the_scores(
+            Piece.White)
         self.notify_user(f"Scores : \n Black : {black_score}\n White : {white_score}")
         if black_score > white_score:
             self.notify_user("Black Wins")
@@ -200,14 +203,15 @@ class GameBoard(QFrame):
 
     def reset_game(self):
         self.notify_user("Game Reset")
-        self.board_array = [[Balls(Piece.NoPiece, i, j) for i in range(self.BOARD_WIDTH)] for j in range(self.BOARD_HEIGHT)]
+        self.board_array = [[Balls(Piece.NoPiece, i, j) for i in range(self.BOARD_WIDTH)] for j in
+                            range(self.BOARD_HEIGHT)]
         self.game_engine.black_prisoner = 0
         self.game_engine.white_prisoner = 0
-        self.game_engine.black_territories= 0
+        self.game_engine.black_territories = 0
         self.game_engine.white_territories = 0
         self.game_engine.turn = Piece.Black
         self.timer.stop()
-        self.COUNTER = 60
+        self.COUNTER = 120
         self.timer.start(self.TIMER_SPEED, self)
 
     def skip_turn(self):
@@ -226,7 +230,8 @@ class GameBoard(QFrame):
         winner = "White Player Wins" if self.game_engine.turn == Piece.Black else "Black Player Wins"
         self.notify_user(winner)
         reply = QMessageBox.question(self, 'Game Over', f"{winner}\nDo you want to play a new game?",
-                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
+                                     QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                     QMessageBox.StandardButton.No)
         if reply == QMessageBox.StandardButton.Yes:
             self.reset_game()
         else:
@@ -242,4 +247,3 @@ class GameBoard(QFrame):
         self.game_engine.update_liberty()
         self.game_engine.update_territories()
         self.update_states()
-
